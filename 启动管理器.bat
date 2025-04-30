@@ -1,4 +1,4 @@
 @echo off
 cd /d %~dp0
-python run.py
+start /b "" pythonw run.py
 exit 
