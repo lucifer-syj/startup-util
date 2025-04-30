@@ -10,7 +10,8 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt5.QtCore import Qt, QProcess
 from PyQt5.QtGui import QFont, QIcon
 
-import styles
+# 从同一包中导入styles模块
+from . import styles
 
 
 class StartupManager(QMainWindow):
@@ -26,7 +27,12 @@ class StartupManager(QMainWindow):
         
         self.app = QApplication.instance()
         self.initUI()
-        self.loadAppListJson('appList.json')
+        
+        # 获取当前模块所在目录，加载配置文件
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(module_dir, 'appList.json')
+        self.loadAppListJson(config_path)
+        
         self.checkRunningProcesses()
         
     def initUI(self):

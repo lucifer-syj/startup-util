@@ -27,9 +27,20 @@
    ```
 3. 运行程序:
    ```
-   python startup_manager.pyw
+   python run.py
    ```
    或直接双击 `启动管理器.bat` 文件(Windows)
+
+### 作为Python包安装
+你也可以将此项目作为Python包安装：
+```
+pip install -e .
+```
+
+安装后，你可以通过命令行直接启动：
+```
+startup-util
+```
 
 ## 使用说明
 
@@ -74,20 +85,45 @@
 
 ## 项目文件结构
 
-- `startup_manager.pyw` - 主程序文件，包含应用程序逻辑和UI
-- `styles.py` - 界面样式定义，包含暗色和亮色主题
-- `appList.json` - 配置文件，存储程序和预设信息
-- `启动管理器.bat` - Windows快捷启动脚本
-- `requirements.txt` - 项目依赖列表
-- `.cursorignore` - IDE索引排除文件
+```
+startup-util/
+├── .git/                   # Git仓库
+├── .gitignore              # Git忽略文件
+├── LICENSE                 # 许可证文件
+├── README.md               # 项目说明文档
+├── CHANGELOG.md            # 更新日志
+├── requirements.txt        # 项目依赖列表
+├── setup.py                # 项目安装脚本
+├── run.py                  # 项目运行入口
+├── 启动管理器.bat          # Windows快捷启动脚本
+├── docs/                   # 文档目录
+│   ├── 使用指南.md         # 用户使用指南
+│   └── 开发文档.md         # 开发文档
+├── screenshots/            # 截图目录
+└── src/                    # 源代码目录
+    └── startup_util/       # 启动管理器包
+        ├── __init__.py     # 包初始化文件
+        ├── __main__.py     # 包入口点
+        ├── startup_manager.pyw # 主程序文件
+        ├── styles.py       # 界面样式定义
+        ├── appList.json    # 配置文件
+        └── build.py        # 打包脚本
+```
 
 ## 开发者信息
 
 ### 修改界面样式
-如需修改界面样式，请编辑`styles.py`文件中的样式表定义。
+如需修改界面样式，请编辑`src/startup_util/styles.py`文件中的样式表定义。
 
 ### 添加新功能
-主程序逻辑在`startup_manager.pyw`文件中，遵循PyQt5的应用程序结构。
+主程序逻辑在`src/startup_util/startup_manager.pyw`文件中，遵循PyQt5的应用程序结构。
+
+### 打包应用
+要将应用打包为独立可执行文件，请使用：
+```
+cd src/startup_util
+python build.py
+```
 
 ### 依赖版本
 - PyQt5 v5.15.6
