@@ -10,8 +10,8 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt5.QtCore import Qt, QProcess
 from PyQt5.QtGui import QFont, QIcon
 
-# 从同一包中导入styles模块
-from . import styles
+# 使用绝对导入
+from src.startup_util import styles
 
 
 class StartupManager(QMainWindow):
