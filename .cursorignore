@@ -1,0 +1,32 @@
+# 排除的目录
+__pycache__/
+.history/
+.git/
+.idea/
+.vscode/
+.pytest_cache/
+venv/
+env/
+build/
+dist/
+
+# 排除的文件类型
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dll
+*.exe
+*.log
+*.db
+*.sqlite3
+*.swp
+*.swo
+*.tmp
+*.bak
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico 

@@ -1,0 +1,106 @@
+{
+    "appList": [
+      {
+        "name": "QQ",
+        "exe": "QQ.exe",
+        "path": "F:\\win10软件\\Tencent\\qqNT\\QQ.exe"
+      },
+      {
+        "name": "微信",
+        "exe": "WeChat.exe",
+        "path": "H:\\WeChat\\WeChat.exe"
+      },
+      {
+        "name": "cursor",
+        "exe": "Cursor.exe",
+        "path": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\cursor\\Cursor.exe"
+      },
+      {
+        "name": "idea",
+        "exe": "idea64.exe",
+        "path": "I:\\IntelliJ IDEA 2023.1\\bin\\idea64.exe"
+      },
+      {
+        "name": "webstorm",
+        "exe": "webstorm64.exe",
+        "path": "H:\\1syj\\syj_document\\Util\\WebStorm 2018.3.6\\bin\\webstorm64.exe"
+      },
+      {
+        "name": "nginx",
+        "exe": "nginx.exe",
+        "path": "H:\\1syj\\wahty_util\\nginx-1.14.2\\nginx.exe"
+      },
+      {
+        "name": "EasyConnect",
+        "exe": "EasyConnect.exe",
+        "path": "C:\\Program Files (x86)\\Sangfor\\SSL\\EasyConnect\\EasyConnect.exe"
+      },
+      {
+        "name": "clashN",
+        "exe": "clashN.exe",
+        "path": "H:\\2syj\\play\\clashN\\clashN.exe"
+      },
+      {
+        "name": "v2rayN",
+        "exe": "v2rayN.exe",
+        "path": "H:\\2syj\\play\\v2rayN-Core3.29\\v2rayN.exe"
+      },
+      {
+        "name": "钉钉",
+        "exe": "DingTalk.exe",
+        "path": "H:\\DingDing\\DingtalkLauncher.exe"
+      },
+      {
+        "name": "wps",
+        "exe": "wps.exe",
+        "path": "H:\\WPS Office\\ksolaunch.exe"
+      },
+      {
+        "name": "遨游5",
+        "exe": "Maxthon.exe",
+        "path": "F:\\win10软件\\Maxthon\\Maxthon.exe"
+      },
+      {
+        "name": "chrome",
+        "exe": "chrome.exe",
+        "path": "C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe"
+      },
+      {
+        "name": "Everything",
+        "exe": "Everything.exe",
+        "path": "G:\\myComputer\\Desktop\\Everything-1.4.1.877.x64\\Everything.exe"
+      },
+      {
+        "name": "Kimi",
+        "exe": "Kimi 智能助手.exe",
+        "path": "F:\\Kimi 智能助手\\Kimi 智能助手.exe"
+      },
+      {
+        "name": "腾讯元宝",
+        "exe": "yuanbao.exe",
+        "path": "F:\\腾讯元宝\\Yuanbao\\yuanbao.exe"
+      }
+    ],
+    "groupProgramList": [
+      {
+        "name": "开发",
+        "key": "d",
+        "apps": [
+          "QQ",
+          "微信",
+          "idea",
+          "cursor",
+          "nginx",
+          "EasyConnect"
+        ]
+      },
+      {
+        "name": "VPN",
+        "key": "v",
+        "apps": [
+          "v2rayN"
+        ]
+      }
+    ]
+  }
+  
