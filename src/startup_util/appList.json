@@ -28,7 +28,7 @@
       {
         "name": "nginx",
         "exe": "nginx.exe",
-        "path": "H:\\1syj\\wahty_util\\nginx-1.14.2\\nginx.exe"
+        "path": "H:\\1syj\\wahty_util\\nginx-1.14.2\\start.bat"
       },
       {
         "name": "EasyConnect",

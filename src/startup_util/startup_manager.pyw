@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                             QHBoxLayout, QPushButton, QLabel, QScrollArea, 
                             QFileDialog, QMessageBox, QGroupBox, QFrame,
                             QStyleFactory)
-from PyQt5.QtCore import Qt, QProcess
+from PyQt5.QtCore import Qt, QProcess, QSize
 from PyQt5.QtGui import QFont, QIcon
 
 # 使用绝对导入
@@ -34,6 +34,52 @@ class StartupManager(QMainWindow):
         self.loadAppListJson(config_path)
         
         self.checkRunningProcesses()
+
+    def killSelectedProcesses(self):
+        """结束选中的进程"""
+        # 获取所有正在运行的进程
+        running_procs = []
+        for program in self.programs:
+            if program['exe'] in self.running_processes:
+                running_procs.append(program['name'])
+        
+        if not running_procs:
+            QMessageBox.information(self, "提示", "没有可以结束的进程")
+            return
+        
+        # 创建确认对话框
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("确认")
+        msg.setText("确定要结束以下进程吗？")
+        msg.setInformativeText("\n".join(running_procs))
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg.setDefaultButton(QMessageBox.No)
+        
+        if msg.exec_() == QMessageBox.Yes:
+            killed_procs = []
+            failed_procs = []
+            
+            for proc in psutil.process_iter(['name', 'pid']):
+                try:
+                    if proc.info['name'] in self.running_processes:
+                        proc.kill()
+                        killed_procs.append(proc.info['name'])
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess) as e:
+                    failed_procs.append(proc.info['name'])
+            
+            # 刷新进程状态
+            self.checkRunningProcesses()
+            
+            # 显示结果
+            result_msg = ""
+            if killed_procs:
+                result_msg += f"成功结束进程：\n{', '.join(killed_procs)}\n\n"
+            if failed_procs:
+                result_msg += f"以下进程结束失败：\n{', '.join(failed_procs)}"
+            
+            if result_msg:
+                QMessageBox.information(self, "操作结果", result_msg)
         
     def initUI(self):
         self.setWindowTitle('启动管理器')
@@ -71,17 +117,27 @@ class StartupManager(QMainWindow):
         
         # 顶部工具栏
         toolbar = QHBoxLayout()
+        
+        # 刷新按钮
         refresh_btn = QPushButton('刷新状态')
         refresh_btn.setIcon(QIcon.fromTheme('view-refresh'))
         refresh_btn.setCursor(Qt.PointingHandCursor)
         refresh_btn.clicked.connect(self.checkRunningProcesses)
         
+        # 结束进程按钮
+        kill_btn = QPushButton('结束进程')
+        kill_btn.setIcon(QIcon.fromTheme('process-stop'))
+        kill_btn.setCursor(Qt.PointingHandCursor)
+        kill_btn.clicked.connect(self.killSelectedProcesses)
+        
+        # 主题切换按钮
         theme_btn = QPushButton('切换主题')
         theme_btn.setIcon(QIcon.fromTheme('preferences-desktop-theme'))
         theme_btn.setCursor(Qt.PointingHandCursor)
         theme_btn.clicked.connect(self.toggleTheme)
         
         toolbar.addWidget(refresh_btn)
+        toolbar.addWidget(kill_btn)
         toolbar.addWidget(theme_btn)
         toolbar.addStretch()
         
@@ -116,11 +172,21 @@ class StartupManager(QMainWindow):
         self.app.setPalette(styles.dark_palette())
         self.app.setStyleSheet(styles.DARK_STYLESHEET)
         self.is_dark_theme = True
+        # 更新所有目录按钮的主题类
+        for button in self.findChildren(QPushButton, "dir_button"):
+            button.setProperty("class", "dark-theme")
+            button.style().unpolish(button)
+            button.style().polish(button)
     
     def applyLightTheme(self):
         self.app.setPalette(QApplication.style().standardPalette())
         self.app.setStyleSheet(styles.LIGHT_STYLESHEET)
         self.is_dark_theme = False
+        # 更新所有目录按钮的主题类
+        for button in self.findChildren(QPushButton, "dir_button"):
+            button.setProperty("class", "light-theme")
+            button.style().unpolish(button)
+            button.style().polish(button)
     
     def toggleTheme(self):
         if self.is_dark_theme:
@@ -252,10 +318,28 @@ class StartupManager(QMainWindow):
         
         # 程序名称部分(固定宽度240px)
         program_name_widget = QWidget()
-        program_name_widget.setFixedWidth(240)
+        program_name_widget.setFixedWidth(280)  # 增加宽度以容纳新按钮
         program_name_layout = QHBoxLayout(program_name_widget)
         program_name_layout.setContentsMargins(5, 0, 0, 0)
         program_name_layout.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        
+        # 添加打开目录按钮
+        open_dir_btn = QPushButton()
+        open_dir_btn.setObjectName("dir_button")  # 设置对象名以应用样式
+        # 使用更小的文件夹图标
+        icon = self.style().standardIcon(self.style().SP_DirIcon)
+        open_dir_btn.setIcon(icon)
+        open_dir_btn.setIconSize(QSize(16, 16))  # 设置图标大小
+        open_dir_btn.setToolTip("打开程序所在目录")
+        open_dir_btn.setCursor(Qt.PointingHandCursor)
+        open_dir_btn.setFixedSize(24, 24)
+        # 根据主题设置类名
+        if self.is_dark_theme:
+            open_dir_btn.setProperty("class", "dark-theme")
+        else:
+            open_dir_btn.setProperty("class", "light-theme")
+        open_dir_btn.clicked.connect(lambda: self.openProgramDirectory(program['path']))
+        program_name_layout.addWidget(open_dir_btn)
         
         # 程序状态指示器
         status_indicator = QLabel()
@@ -286,22 +370,32 @@ class StartupManager(QMainWindow):
         
         row.addWidget(program_name_widget)
         
-        # 程序状态部分(固定宽度60px)
+        # 程序状态部分(固定宽度120px，包含启动和结束按钮)
         status_widget = QWidget()
-        status_widget.setFixedWidth(60)
+        status_widget.setFixedWidth(120)
         status_layout = QHBoxLayout(status_widget)
         status_layout.setContentsMargins(0, 0, 0, 0)
+        status_layout.setSpacing(2)
         status_layout.setAlignment(Qt.AlignCenter)
         
+        # 启动按钮
         start_btn = QPushButton("启动")
         if is_running:
             start_btn.setEnabled(False)
             start_btn.setText("已运行")
         start_btn.setCursor(Qt.PointingHandCursor)
         start_btn.clicked.connect(lambda checked, p=program: self.startProgram(p))
-        start_btn.setFixedWidth(55)  # 设置按钮固定宽度以适应60px容器
+        start_btn.setFixedWidth(55)
+        
+        # 结束进程按钮
+        kill_btn = QPushButton("结束")
+        kill_btn.setEnabled(is_running)
+        kill_btn.setCursor(Qt.PointingHandCursor)
+        kill_btn.clicked.connect(lambda checked, p=program: self.killProcess(p))
+        kill_btn.setFixedWidth(55)
         
         status_layout.addWidget(start_btn)
+        status_layout.addWidget(kill_btn)
         row.addWidget(status_widget)
         
         # 为每个预设添加关联指示器(平分剩余宽度)
@@ -314,13 +408,42 @@ class StartupManager(QMainWindow):
             
             if is_connected:
                 if self.is_dark_theme:
-                    check_label.setStyleSheet("color: #3498db; font-weight: bold; font-size: 14px;")
+                    check_label.setStyleSheet(f"color: {styles.DARK_CHECK_COLOR};")
                 else:
-                    check_label.setStyleSheet("color: #2980b9; font-weight: bold; font-size: 14px;")
+                    check_label.setStyleSheet(f"color: {styles.LIGHT_CHECK_COLOR};")
             
             row.addWidget(check_label)
         
         return program_frame
+
+    def killProcess(self, program):
+        """结束指定程序的进程"""
+        exe_name = program.get('exe', '').lower()
+        
+        # 创建确认对话框
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("确认")
+        msg.setText(f"确定要结束 {program['name']} 吗？")
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg.setDefaultButton(QMessageBox.No)
+        
+        if msg.exec_() == QMessageBox.Yes:
+            killed = False
+            for proc in psutil.process_iter(['name', 'pid']):
+                try:
+                    if proc.info['name'].lower() == exe_name:
+                        proc.kill()
+                        killed = True
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess) as e:
+                    QMessageBox.warning(self, "错误", f"无法结束进程: {str(e)}")
+                    return
+            
+            if killed:
+                self.checkRunningProcesses()
+                self.statusBar().showMessage(f'已结束进程: {program["name"]}')
+            else:
+                QMessageBox.information(self, "提示", f"未找到正在运行的进程: {program['name']}")
     
     def updateUI(self):
         # 清除当前布局
@@ -339,7 +462,7 @@ class StartupManager(QMainWindow):
         
         # 计算预设按钮宽度（确保最小为30px）
         preset_count = len(self.presets)
-        remaining_width = window_width - 300 - 20  # 减去程序标题宽度和左右边距
+        remaining_width = window_width - 340 - 20  # 减去程序标题宽度和左右边距
         self.preset_button_width = max(30, min(50, remaining_width // max(1, preset_count)))  # 限制最小宽度为30px，最大为50px
         
         # 创建表头
@@ -347,11 +470,11 @@ class StartupManager(QMainWindow):
         header.setContentsMargins(5, 2, 5, 2)
         header.setSpacing(2)  # 设置较小的间距
         
-        # 程序标题列(固定宽度300px)
+        # 程序标题列(固定宽度340px，包含目录按钮的宽度)
         program_header = QLabel("程序")
         program_header.setFont(QFont("Arial", 9, QFont.Bold))
         program_header.setAlignment(Qt.AlignCenter)
-        program_header.setFixedWidth(300)
+        program_header.setFixedWidth(340)  # 增加宽度以适应目录按钮
         header.addWidget(program_header)
         
         # 预设标题按钮(平分剩余宽度)
@@ -433,6 +556,21 @@ class StartupManager(QMainWindow):
         QApplication.processEvents()
         time.sleep(0.5)
         self.checkRunningProcesses()
+
+    def openProgramDirectory(self, program_path):
+        """打开程序所在目录"""
+        try:
+            directory = os.path.dirname(program_path)
+            if sys.platform == 'win32':
+                os.startfile(directory)
+            else:
+                import subprocess
+                subprocess.Popen(['xdg-open', directory])
+            self.statusBar().showMessage(f"已打开目录: {directory}")
+        except FileNotFoundError:
+            QMessageBox.warning(self, "警告", f"目录不存在: {os.path.dirname(program_path)}")
+        except Exception as e:
+            QMessageBox.critical(self, "错误", f"打开目录失败: {str(e)}")
 
 
 if __name__ == '__main__':

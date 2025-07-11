@@ -68,6 +68,39 @@ QPushButton:disabled {
     border: 1px solid #3c3c3c;
     color: #787878;
 }
+
+/* 目录按钮样式 */
+QPushButton#dir_button {
+    background-color: transparent;
+    border: none;
+    min-width: 24px;
+    max-width: 24px;
+    min-height: 24px;
+    max-height: 24px;
+    padding: 2px;
+    margin: 0 2px;
+    icon-size: 16px;
+}
+QPushButton#dir_button:hover {
+    background-color: rgba(79, 79, 79, 0.5);
+    border-radius: 4px;
+}
+QPushButton#dir_button:pressed {
+    background-color: rgba(56, 56, 56, 0.7);
+    border-radius: 4px;
+}
+
+/* 亮色主题的目录按钮样式 */
+.light-theme QPushButton#dir_button {
+    background-color: transparent;
+}
+.light-theme QPushButton#dir_button:hover {
+    background-color: rgba(224, 224, 224, 0.8);
+}
+.light-theme QPushButton#dir_button:pressed {
+    background-color: rgba(208, 208, 208, 0.9);
+}
+
 QLabel {
     color: white;
 }
@@ -162,6 +195,25 @@ QPushButton:disabled {
     border: 1px solid #d0d0d0;
     color: #a0a0a0;
 }
+
+/* 目录按钮样式 */
+QPushButton#dir_button {
+    background-color: transparent;
+    border: none;
+    min-width: 24px;
+    max-width: 24px;
+    min-height: 24px;
+    max-height: 24px;
+    padding: 0;
+}
+QPushButton#dir_button:hover {
+    background-color: #e0e0e0;
+    border-radius: 12px;
+}
+QPushButton#dir_button:pressed {
+    background-color: #d0d0d0;
+}
+
 QScrollArea {
     background-color: transparent;
     border: none;
@@ -233,3 +285,7 @@ DARK_NOT_CONNECTED_BORDER = "#7f8c8d" # 灰色边框
 
 LIGHT_CONNECTED_COLOR = "#2980b9"  # 深蓝色
 LIGHT_NOT_CONNECTED_BORDER = "#bdc3c7" # 浅灰色边框 
+
+# 勾选标记颜色
+DARK_CHECK_COLOR = "#3498db"  # 蓝色
+LIGHT_CHECK_COLOR = "#2980b9" # 深蓝色 
